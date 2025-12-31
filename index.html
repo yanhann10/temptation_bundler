@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Resolution Builder</title>
+    <style>
+      :root {
+        --bg: #0b0f17;
+        --card: rgba(255, 255, 255, 0.06);
+        --card2: rgba(255, 255, 255, 0.08);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.7);
+        --muted2: rgba(255, 255, 255, 0.55);
+        --border: rgba(255, 255, 255, 0.12);
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        --radius: 18px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+          Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        background: var(--bg);
+        position: relative;
+        color: var(--text);
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: radial-gradient(
+            circle at 20% 30%,
+            rgba(139, 92, 246, 0.3) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(59, 130, 246, 0.25) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 40% 80%,
+            rgba(236, 72, 153, 0.2) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 90% 70%,
+            rgba(168, 85, 247, 0.15) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 10% 60%,
+            rgba(34, 197, 94, 0.1) 0%,
+            transparent 50%
+          ),
+          var(--bg);
+        filter: blur(80px);
+        transform: scale(1.2);
+        animation: meshMove 20s ease-in-out infinite;
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+        opacity: 0.4;
+        mix-blend-mode: overlay;
+      }
+
+      @keyframes meshMove {
+        0%,
+        100% {
+          transform: scale(1.2) translate(0, 0);
+        }
+        33% {
+          transform: scale(1.3) translate(2%, -1%);
+        }
+        66% {
+          transform: scale(1.25) translate(-1%, 2%);
+        }
+      }
+
+      .wrap {
+        max-width: 1120px;
+        margin: 28px auto 70px;
+        padding: 0 16px;
+      }
+
+      header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+      }
+
+      .title {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        letter-spacing: 0.2px;
+      }
+
+      .sub {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.4;
+      }
+
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .pill {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+        color: var(--muted);
+        font-size: 13px;
+        user-select: none;
+      }
+
+      .btn {
+        display: inline-flex;
+        gap: 10px;
+        align-items: center;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, var(--shadow);
+        color: var(--text);
+        font-size: 13px;
+        cursor: pointer;
+        transition: transform 120ms ease, background 120ms ease;
+        white-space: nowrap;
+      }
+      .btn:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.08);
+      }
+      .btn:active {
+        transform: translateY(0px);
+      }
+      .btn.secondary {
+        background: rgba(255, 255, 255, 0.03);
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+        color: var(--muted);
+      }
+      .btn.danger {
+        background: rgba(255, 77, 110, 0.1);
+        border-color: rgba(255, 77, 110, 0.35);
+      }
+
+      input[type="file"] {
+        display: none;
+      }
+
+      .panel {
+        margin-top: 12px;
+        padding: 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: rgba(255, 255, 255, 0.04);
+        box-shadow: var(--shadow);
+      }
+
+      .tabs {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .tabBtn {
+        padding: 10px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--muted);
+        cursor: pointer;
+        transition: background 120ms ease, transform 120ms ease;
+        user-select: none;
+      }
+      .tabBtn:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .tabBtn[data-active="true"] {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: space-between;
+      }
+
+      .searchRow {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex: 1;
+        min-width: 260px;
+      }
+
+      .search {
+        flex: 1;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.2);
+        color: var(--text);
+        outline: none;
+      }
+      .search::placeholder {
+        color: rgba(255, 255, 255, 0.45);
+      }
+
+      .select {
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.2);
+        color: var(--text);
+        outline: none;
+        min-width: 170px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      @media (min-width: 860px) {
+        .grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.06),
+          rgba(255, 255, 255, 0.03)
+        );
+        box-shadow: var(--shadow);
+        padding: 14px;
+        display: grid;
+        grid-template-columns: 22px 1fr;
+        gap: 12px;
+        align-items: start;
+      }
+
+      .checkbox {
+        width: 18px;
+        height: 18px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.04);
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        margin-top: 2px;
+      }
+
+      .checkbox[data-checked="true"] {
+        background: rgba(140, 255, 140, 0.18);
+        border-color: rgba(140, 255, 140, 0.55);
+      }
+
+      .checkmark {
+        width: 10px;
+        height: 6px;
+        border-left: 2px solid rgba(255, 255, 255, 0.92);
+        border-bottom: 2px solid rgba(255, 255, 255, 0.92);
+        transform: rotate(-45deg);
+        opacity: 0;
+      }
+      .checkbox[data-checked="true"] .checkmark {
+        opacity: 1;
+      }
+
+      .metaTop {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .tag {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      /* Minimalistic category colors */
+      .tag[data-domain="Fitness"],
+      .tag[data-domain="Health"],
+      .tag[data-domain="Exercise"] {
+        background: rgba(34, 197, 94, 0.15);
+        border-color: rgba(34, 197, 94, 0.3);
+        color: rgba(134, 239, 172, 0.9);
+      }
+
+      .tag[data-domain="Career"],
+      .tag[data-domain="Work"],
+      .tag[data-domain="Professional"] {
+        background: rgba(59, 130, 246, 0.15);
+        border-color: rgba(59, 130, 246, 0.3);
+        color: rgba(147, 197, 253, 0.9);
+      }
+
+      .tag[data-domain="Personal"],
+      .tag[data-domain="Self"],
+      .tag[data-domain="Growth"] {
+        background: rgba(168, 85, 247, 0.15);
+        border-color: rgba(168, 85, 247, 0.3);
+        color: rgba(196, 181, 253, 0.9);
+      }
+
+      .tag[data-domain="Leisure"],
+      .tag[data-domain="Fun"],
+      .tag[data-domain="Hobby"] {
+        background: rgba(236, 72, 153, 0.15);
+        border-color: rgba(236, 72, 153, 0.3);
+        color: rgba(251, 207, 232, 0.9);
+      }
+
+      .tag[data-domain="Learning"],
+      .tag[data-domain="Education"],
+      .tag[data-domain="Study"] {
+        background: rgba(251, 146, 60, 0.15);
+        border-color: rgba(251, 146, 60, 0.3);
+        color: rgba(254, 215, 170, 0.9);
+      }
+
+      .tag[data-domain="Finance"],
+      .tag[data-domain="Money"],
+      .tag[data-domain="Financial"] {
+        background: rgba(34, 197, 94, 0.15);
+        border-color: rgba(34, 197, 94, 0.3);
+        color: rgba(134, 239, 172, 0.9);
+      }
+
+      .tag[data-domain="Social"],
+      .tag[data-domain="Relationships"],
+      .tag[data-domain="Family"] {
+        background: rgba(244, 63, 94, 0.15);
+        border-color: rgba(244, 63, 94, 0.3);
+        color: rgba(253, 164, 175, 0.9);
+      }
+
+      .tag[data-domain="Creative"],
+      .tag[data-domain="Art"],
+      .tag[data-domain="Music"] {
+        background: rgba(139, 92, 246, 0.15);
+        border-color: rgba(139, 92, 246, 0.3);
+        color: rgba(196, 181, 253, 0.9);
+      }
+
+      .goal {
+        margin: 8px 0 6px;
+        font-size: 16px;
+        line-height: 1.25;
+        letter-spacing: 0.1px;
+      }
+
+      .reward {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.35;
+      }
+      .reward strong {
+        color: rgba(255, 255, 255, 0.85);
+        font-weight: 600;
+      }
+
+      .actionsRow {
+        margin-top: 10px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .smallBtn {
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        cursor: pointer;
+        user-select: none;
+        transition: background 120ms ease, transform 120ms ease;
+        font-size: 12px;
+      }
+      .smallBtn:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.06);
+      }
+      .smallBtn:active {
+        transform: translateY(0px);
+      }
+
+      .empty {
+        padding: 22px 14px;
+        border: 1px dashed rgba(255, 255, 255, 0.18);
+        border-radius: var(--radius);
+        color: var(--muted);
+        text-align: center;
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .note {
+        margin-top: 10px;
+        color: var(--muted2);
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      /* Edit tab */
+      .editWrap {
+        margin-top: 12px;
+        display: grid;
+        gap: 12px;
+      }
+      .textarea {
+        width: 100%;
+        min-height: 320px;
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.22);
+        color: var(--text);
+        outline: none;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        font-size: 12.5px;
+        line-height: 1.45;
+      }
+      .textarea::placeholder {
+        color: rgba(255, 255, 255, 0.45);
+      }
+
+      /* Toast */
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 18px;
+        transform: translateX(-50%);
+        padding: 12px 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(0, 0, 0, 0.55);
+        box-shadow: var(--shadow);
+        color: var(--text);
+        max-width: min(720px, calc(100vw - 28px));
+        z-index: 60;
+        display: none;
+      }
+      .toast .tTitle {
+        font-size: 12px;
+        color: var(--muted);
+        margin: 0 0 6px;
+      }
+      .toast .tBody {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.35;
+      }
+      .toast strong {
+        color: rgba(255, 255, 255, 0.88);
+        font-weight: 650;
+      }
+
+      canvas#confetti {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 50;
+      }
+    </style>
+  </head>
+
+  <body>
+    <canvas id="confetti"></canvas>
+
+    <div class="wrap">
+      <header>
+        <div class="title">
+          <h1>Resolution Builder</h1>
+          <p class="sub">
+            Complete a goal to see the reward and move it to the Completed tab.
+          </p>
+        </div>
+
+        <div class="toolbar">
+          <span class="pill" id="activeSetPill">Using dummy goals</span>
+
+          <label
+            class="btn"
+            for="fileInput"
+            title="Import your personal goals (.txt)"
+          >
+            Import personal goals (.txt)
+          </label>
+          <input id="fileInput" type="file" accept=".txt,text/plain" />
+
+          <button
+            class="btn secondary"
+            id="clearProgressBtn"
+            title="Clears completion state for the current goals set"
+          >
+            Clear completion
+          </button>
+        </div>
+      </header>
+
+      <div class="panel">
+        <div class="tabs">
+          <div class="tabBtn" id="tabActive" data-active="true">Active</div>
+          <div class="tabBtn" id="tabCompleted" data-active="false">
+            Completed
+          </div>
+          <div class="tabBtn" id="tabEdit" data-active="false">Add / Edit</div>
+        </div>
+
+        <div id="viewActive">
+          <div class="controls">
+            <div class="searchRow">
+              <input
+                id="searchInput"
+                class="search"
+                placeholder="Search goals or rewards"
+              />
+              <select id="domainSelect" class="select">
+                <option value="__all__">All domains</option>
+              </select>
+            </div>
+
+            <div class="pill" id="progressPill">0 active • 0 completed</div>
+          </div>
+
+          <div id="gridActive" class="grid"></div>
+        </div>
+
+        <div id="viewCompleted" style="display: none">
+          <div class="controls">
+            <div class="searchRow">
+              <input
+                id="searchCompletedInput"
+                class="search"
+                placeholder="Search completed goals or rewards"
+              />
+              <select id="domainCompletedSelect" class="select">
+                <option value="__all__">All domains</option>
+              </select>
+            </div>
+
+            <div class="pill" id="completedPill">0 completed</div>
+          </div>
+
+          <div id="gridCompleted" class="grid"></div>
+        </div>
+
+        <div id="viewEdit" style="display: none">
+          <div class="editWrap">
+            <div class="controls">
+              <div class="pill" id="editHintPill">Edit current goals set</div>
+              <div
+                style="
+                  display: flex;
+                  gap: 10px;
+                  flex-wrap: wrap;
+                  justify-content: flex-end;
+                "
+              >
+                <button class="btn secondary" id="applyEditsBtn">
+                  Apply edits
+                </button>
+                <button class="btn secondary" id="exportTxtBtn">
+                  Export .txt
+                </button>
+              </div>
+            </div>
+
+            <textarea
+              id="datasetEditor"
+              class="textarea"
+              spellcheck="false"
+              placeholder="One item per line: Domain | Goal | Reward"
+            ></textarea>
+
+            <div class="note">
+              Tip: keep your personal goals file in a local .txt and import it.
+              If you edit here, your changes are saved in this browser.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite">
+      <p class="tTitle">Reward unlocked</p>
+      <p class="tBody" id="toastBody"></p>
+    </div>
+
+    <script>
+      /***********************
+       * Dummy dataset (default)
+       ***********************/
+      const DUMMY_DATASET_TEXT = `
+Fitness | 10 martial arts classes | visit a new destination  
+Personal | Build 1 side project | go to a film festival  
+Leisure | Make 3 road trips | food tour
+`.trim();
+
+      /************************************
+       * Storage keys
+       ************************************/
+      const LS = {
+        PERSONAL_TEXT: "rb.personal_dataset_text.v2",
+        ACTIVE_SET: "rb.active_set.v2", // "dummy" | "personal"
+        DONE_MAP_PREFIX: "rb.done_map.v2::", // + datasetId
+      };
+
+      /*****************
+       * Parse utilities
+       *****************/
+      function normalizeLine(line) {
+        return line.replace(/\s+/g, " ").trim();
+      }
+
+      function stableHash(str) {
+        let h1 = 0x811c9dc5;
+        for (let i = 0; i < str.length; i++) {
+          h1 ^= str.charCodeAt(i);
+          h1 = (h1 * 0x01000193) >>> 0;
+        }
+        return "h" + h1.toString(16).padStart(8, "0");
+      }
+
+      function computeDatasetId(text) {
+        return stableHash(normalizeLine(text || ""));
+      }
+
+      function parseDataset(text) {
+        const items = [];
+        const lines = (text || "").split(/\r?\n/);
+
+        for (let raw of lines) {
+          const line = raw.trim();
+          if (!line) continue;
+          if (line.startsWith("#")) continue;
+
+          const parts = line
+            .split("|")
+            .map((p) => p.trim())
+            .filter(Boolean);
+          if (parts.length < 2) continue;
+
+          const domain = parts[0] || "Other";
+          const goal = parts[1] || "";
+          const reward = parts.slice(2).join(" | ").trim();
+
+          if (!goal) continue;
+
+          const stable = normalizeLine(`${domain} | ${goal} | ${reward}`);
+          const id = stableHash(stable);
+          items.push({ id, domain, goal, reward });
+        }
+        return items;
+      }
+
+      /*****************
+       * State
+       *****************/
+      const state = {
+        activeSet: "dummy", // "dummy" | "personal"
+        datasetText: DUMMY_DATASET_TEXT,
+        datasetId: computeDatasetId(DUMMY_DATASET_TEXT),
+        items: [],
+        doneMap: {},
+
+        tab: "active", // "active" | "completed" | "edit"
+        filterDomain: "__all__",
+        search: "",
+        filterDomainCompleted: "__all__",
+        searchCompleted: "",
+      };
+
+      /*****************
+       * Persistence
+       *****************/
+      function getPersonalText() {
+        return localStorage.getItem(LS.PERSONAL_TEXT) || "";
+      }
+
+      function setPersonalText(text) {
+        localStorage.setItem(LS.PERSONAL_TEXT, text);
+      }
+
+      function forgetPersonalText() {
+        localStorage.removeItem(LS.PERSONAL_TEXT);
+      }
+
+      function getActiveSetStored() {
+        const v = localStorage.getItem(LS.ACTIVE_SET);
+        return v === "personal" ? "personal" : "dummy";
+      }
+
+      function setActiveSetStored(v) {
+        localStorage.setItem(LS.ACTIVE_SET, v);
+      }
+
+      function loadDoneMapForDataset(datasetId) {
+        const key = LS.DONE_MAP_PREFIX + datasetId;
+        const raw = localStorage.getItem(key);
+        if (!raw) return {};
+        try {
+          const parsed = JSON.parse(raw);
+          return parsed && typeof parsed === "object" ? parsed : {};
+        } catch {
+          return {};
+        }
+      }
+
+      function saveDoneMap() {
+        const key = LS.DONE_MAP_PREFIX + state.datasetId;
+        localStorage.setItem(key, JSON.stringify(state.doneMap));
+      }
+
+      function clearDoneMapForCurrentDataset() {
+        const key = LS.DONE_MAP_PREFIX + state.datasetId;
+        localStorage.removeItem(key);
+        state.doneMap = {};
+      }
+
+      /*****************
+       * DOM refs
+       *****************/
+      const activeSetPillEl = document.getElementById("activeSetPill");
+      const fileInputEl = document.getElementById("fileInput");
+
+      const tabActiveEl = document.getElementById("tabActive");
+      const tabCompletedEl = document.getElementById("tabCompleted");
+      const tabEditEl = document.getElementById("tabEdit");
+
+      const viewActiveEl = document.getElementById("viewActive");
+      const viewCompletedEl = document.getElementById("viewCompleted");
+      const viewEditEl = document.getElementById("viewEdit");
+
+      const domainSelectEl = document.getElementById("domainSelect");
+      const searchInputEl = document.getElementById("searchInput");
+      const progressPillEl = document.getElementById("progressPill");
+      const gridActiveEl = document.getElementById("gridActive");
+
+      const domainCompletedSelectEl = document.getElementById(
+        "domainCompletedSelect"
+      );
+      const searchCompletedInputEl = document.getElementById(
+        "searchCompletedInput"
+      );
+      const completedPillEl = document.getElementById("completedPill");
+      const gridCompletedEl = document.getElementById("gridCompleted");
+
+      const datasetEditorEl = document.getElementById("datasetEditor");
+      const editHintPillEl = document.getElementById("editHintPill");
+
+      const toastEl = document.getElementById("toast");
+      const toastBodyEl = document.getElementById("toastBody");
+      let toastTimer = null;
+
+      /*****************
+       * UI helpers
+       *****************/
+      function escapeHtml(s) {
+        return (s || "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function setActiveSetPill() {
+        const personalExists = getPersonalText().trim().length > 0;
+        if (state.activeSet === "dummy")
+          activeSetPillEl.textContent = "Using dummy goals";
+        else
+          activeSetPillEl.textContent = personalExists
+            ? "Using imported goals"
+            : "Using imported goals (empty)";
+      }
+
+      function setTab(tabName) {
+        state.tab = tabName;
+        tabActiveEl.dataset.active = tabName === "active" ? "true" : "false";
+        tabCompletedEl.dataset.active =
+          tabName === "completed" ? "true" : "false";
+        tabEditEl.dataset.active = tabName === "edit" ? "true" : "false";
+
+        viewActiveEl.style.display = tabName === "active" ? "" : "none";
+        viewCompletedEl.style.display = tabName === "completed" ? "" : "none";
+        viewEditEl.style.display = tabName === "edit" ? "" : "none";
+
+        if (tabName === "edit") {
+          datasetEditorEl.value = state.datasetText;
+          editHintPillEl.textContent =
+            state.activeSet === "dummy"
+              ? "Editing dummy goals (local only)"
+              : "Editing imported goals";
+        }
+      }
+
+      function showToastReward(item) {
+        const reward =
+          item.reward && item.reward.trim().length
+            ? item.reward.trim()
+            : "(no reward)";
+        toastBodyEl.innerHTML = `<strong>${escapeHtml(
+          item.goal
+        )}</strong><br/>Reward: ${escapeHtml(reward)}`;
+        toastEl.style.display = "block";
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toastEl.style.display = "none";
+        }, 2400);
+      }
+
+      /*****************
+       * Dataset switching
+       *****************/
+      function useDataset(setName, text) {
+        state.activeSet = setName; // "dummy" | "personal"
+        state.datasetText = (text || "").trim();
+        state.datasetId = computeDatasetId(state.datasetText);
+
+        state.items = parseDataset(state.datasetText);
+        state.doneMap = loadDoneMapForDataset(state.datasetId);
+
+        // reset filters
+        state.filterDomain = "__all__";
+        state.search = "";
+        state.filterDomainCompleted = "__all__";
+        state.searchCompleted = "";
+        searchInputEl.value = "";
+        searchCompletedInputEl.value = "";
+
+        buildDomainOptions();
+        buildDomainCompletedOptions();
+        setActiveSetPill();
+        renderAll();
+        setActiveSetStored(setName);
+      }
+
+      function bootLoadDataset() {
+        const storedActive = getActiveSetStored();
+        const personalText = getPersonalText().trim();
+
+        if (storedActive === "personal" && personalText.length > 0) {
+          useDataset("personal", personalText);
+        } else {
+          useDataset("dummy", DUMMY_DATASET_TEXT);
+        }
+      }
+
+      /*****************
+       * Filtering
+       *****************/
+      function buildDomainOptions() {
+        const domains = Array.from(
+          new Set(state.items.map((x) => x.domain))
+        ).sort((a, b) => a.localeCompare(b));
+        domainSelectEl.innerHTML = "";
+        domainSelectEl.appendChild(new Option("All domains", "__all__"));
+        for (const d of domains) domainSelectEl.appendChild(new Option(d, d));
+        domainSelectEl.value = "__all__";
+      }
+
+      function buildDomainCompletedOptions() {
+        const domains = Array.from(
+          new Set(state.items.map((x) => x.domain))
+        ).sort((a, b) => a.localeCompare(b));
+        domainCompletedSelectEl.innerHTML = "";
+        domainCompletedSelectEl.appendChild(
+          new Option("All domains", "__all__")
+        );
+        for (const d of domains)
+          domainCompletedSelectEl.appendChild(new Option(d, d));
+        domainCompletedSelectEl.value = "__all__";
+      }
+
+      function getActiveItemsFiltered() {
+        const q = state.search.trim().toLowerCase();
+        return state.items.filter((item) => {
+          if (state.doneMap[item.id]) return false;
+          if (
+            state.filterDomain !== "__all__" &&
+            item.domain !== state.filterDomain
+          )
+            return false;
+          if (!q) return true;
+          const hay =
+            `${item.domain} ${item.goal} ${item.reward}`.toLowerCase();
+          return hay.includes(q);
+        });
+      }
+
+      function getCompletedItemsFiltered() {
+        const q = state.searchCompleted.trim().toLowerCase();
+        return state.items.filter((item) => {
+          if (!state.doneMap[item.id]) return false;
+          if (
+            state.filterDomainCompleted !== "__all__" &&
+            item.domain !== state.filterDomainCompleted
+          )
+            return false;
+          if (!q) return true;
+          const hay =
+            `${item.domain} ${item.goal} ${item.reward}`.toLowerCase();
+          return hay.includes(q);
+        });
+      }
+
+      function updateProgressPills() {
+        const total = state.items.length;
+        let done = 0;
+        for (const it of state.items) if (state.doneMap[it.id]) done++;
+        const active = total - done;
+
+        progressPillEl.textContent = `${active} active • ${done} completed`;
+        completedPillEl.textContent = `${done} completed`;
+      }
+
+      /*****************
+       * Rendering
+       *****************/
+      function renderActive() {
+        const items = getActiveItemsFiltered();
+        gridActiveEl.innerHTML = "";
+
+        if (items.length === 0) {
+          const empty = document.createElement("div");
+          empty.className = "empty";
+          empty.textContent = "No active items match your filters.";
+          gridActiveEl.appendChild(empty);
+          return;
+        }
+
+        for (const item of items) {
+          const card = document.createElement("div");
+          card.className = "card";
+
+          const cb = document.createElement("div");
+          cb.className = "checkbox";
+          cb.dataset.checked = "false";
+
+          const mark = document.createElement("div");
+          mark.className = "checkmark";
+          cb.appendChild(mark);
+
+          cb.addEventListener("click", () => completeItem(item));
+
+          const body = document.createElement("div");
+
+          const top = document.createElement("div");
+          top.className = "metaTop";
+
+          const tag = document.createElement("span");
+          tag.className = "tag";
+          tag.textContent = item.domain;
+          tag.setAttribute("data-domain", item.domain);
+
+          top.appendChild(tag);
+
+          const goal = document.createElement("div");
+          goal.className = "goal";
+          goal.textContent = item.goal;
+
+          const reward = document.createElement("p");
+          reward.className = "reward";
+          reward.innerHTML = item.reward
+            ? `<strong>Reward:</strong> ${escapeHtml(item.reward)}`
+            : `<strong>Reward:</strong> (none)`;
+
+          const actions = document.createElement("div");
+          actions.className = "actionsRow";
+
+          const btnComplete = document.createElement("button");
+          btnComplete.className = "smallBtn";
+          btnComplete.textContent = "Complete";
+          btnComplete.addEventListener("click", () => completeItem(item));
+
+          const btnReveal = document.createElement("button");
+          btnReveal.className = "smallBtn";
+          btnReveal.textContent = "Show reward";
+          btnReveal.addEventListener("click", () => showToastReward(item));
+
+          actions.appendChild(btnComplete);
+          actions.appendChild(btnReveal);
+
+          body.appendChild(top);
+          body.appendChild(goal);
+          body.appendChild(reward);
+          body.appendChild(actions);
+
+          card.appendChild(cb);
+          card.appendChild(body);
+          gridActiveEl.appendChild(card);
+        }
+      }
+
+      function renderCompleted() {
+        const items = getCompletedItemsFiltered();
+        gridCompletedEl.innerHTML = "";
+
+        if (items.length === 0) {
+          const empty = document.createElement("div");
+          empty.className = "empty";
+          empty.textContent =
+            "No completed items yet (or none match your filters).";
+          gridCompletedEl.appendChild(empty);
+          return;
+        }
+
+        for (const item of items) {
+          const card = document.createElement("div");
+          card.className = "card";
+
+          const cb = document.createElement("div");
+          cb.className = "checkbox";
+          cb.dataset.checked = "true";
+
+          const mark = document.createElement("div");
+          mark.className = "checkmark";
+          cb.appendChild(mark);
+
+          cb.addEventListener("click", () => undoItem(item));
+
+          const body = document.createElement("div");
+
+          const top = document.createElement("div");
+          top.className = "metaTop";
+
+          const tag = document.createElement("span");
+          tag.className = "tag";
+          tag.textContent = item.domain;
+          tag.setAttribute("data-domain", item.domain);
+
+          top.appendChild(tag);
+
+          const goal = document.createElement("div");
+          goal.className = "goal";
+          goal.textContent = item.goal;
+
+          const reward = document.createElement("p");
+          reward.className = "reward";
+          reward.innerHTML = item.reward
+            ? `<strong>Reward:</strong> ${escapeHtml(item.reward)}`
+            : `<strong>Reward:</strong> (none)`;
+
+          const actions = document.createElement("div");
+          actions.className = "actionsRow";
+
+          const btnUndo = document.createElement("button");
+          btnUndo.className = "smallBtn";
+          btnUndo.textContent = "Undo";
+          btnUndo.addEventListener("click", () => undoItem(item));
+
+          const btnReward = document.createElement("button");
+          btnReward.className = "smallBtn";
+          btnReward.textContent = "Show reward";
+          btnReward.addEventListener("click", () => showToastReward(item));
+
+          actions.appendChild(btnUndo);
+          actions.appendChild(btnReward);
+
+          body.appendChild(top);
+          body.appendChild(goal);
+          body.appendChild(reward);
+          body.appendChild(actions);
+
+          card.appendChild(cb);
+          card.appendChild(body);
+          gridCompletedEl.appendChild(card);
+        }
+      }
+
+      function renderAll() {
+        updateProgressPills();
+        renderActive();
+        renderCompleted();
+      }
+
+      /*****************
+       * Completion actions
+       *****************/
+      function completeItem(item) {
+        if (state.doneMap[item.id]) return;
+
+        state.doneMap[item.id] = true;
+        saveDoneMap();
+
+        // show reward + confetti, then refresh lists
+        showToastReward(item);
+        burstConfetti();
+
+        renderAll();
+
+        // if user is on Active tab, keep them there
+        // completed item disappears from Active immediately, appears in Completed tab
+      }
+
+      function undoItem(item) {
+        if (!state.doneMap[item.id]) return;
+
+        delete state.doneMap[item.id];
+        saveDoneMap();
+        renderAll();
+      }
+
+      /*****************
+       * Confetti
+       *****************/
+      const confettiCanvas = document.getElementById("confetti");
+      const ctx = confettiCanvas.getContext("2d");
+      let confettiParticles = [];
+      let confettiAnimating = false;
+
+      function resizeConfetti() {
+        confettiCanvas.width = window.innerWidth * devicePixelRatio;
+        confettiCanvas.height = window.innerHeight * devicePixelRatio;
+        ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+      }
+      window.addEventListener("resize", resizeConfetti);
+      resizeConfetti();
+
+      function burstConfetti() {
+        const W = window.innerWidth;
+        const H = window.innerHeight;
+        const originX = W * (0.25 + Math.random() * 0.5);
+        const originY = H * (0.2 + Math.random() * 0.2);
+
+        const count = 120;
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI - Math.PI / 2;
+          const speed = 5 + Math.random() * 9;
+
+          confettiParticles.push({
+            x: originX,
+            y: originY,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            g: 0.18 + Math.random() * 0.12,
+            size: 4 + Math.random() * 3,
+            rot: Math.random() * Math.PI,
+            vr: (Math.random() - 0.5) * 0.25,
+            life: 70 + Math.floor(Math.random() * 40),
+          });
+        }
+
+        if (!confettiAnimating) {
+          confettiAnimating = true;
+          requestAnimationFrame(stepConfetti);
+        }
+      }
+
+      function stepConfetti() {
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+        confettiParticles = confettiParticles.filter((p) => p.life > 0);
+        for (const p of confettiParticles) {
+          p.life -= 1;
+          p.vy += p.g;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += p.vr;
+
+          const alpha = Math.max(0, Math.min(1, p.life / 90));
+          ctx.globalAlpha = alpha;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+
+          const hue = (p.life * 7 + p.size * 40) % 360;
+          ctx.fillStyle = `hsl(${hue} 90% 65%)`;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.7);
+
+          ctx.restore();
+        }
+
+        ctx.globalAlpha = 1;
+
+        if (confettiParticles.length > 0) {
+          requestAnimationFrame(stepConfetti);
+        } else {
+          confettiAnimating = false;
+          ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        }
+      }
+
+      /*****************
+       * Events
+       *****************/
+      tabActiveEl.addEventListener("click", () => setTab("active"));
+      tabCompletedEl.addEventListener("click", () => setTab("completed"));
+      tabEditEl.addEventListener("click", () => setTab("edit"));
+
+      domainSelectEl.addEventListener("change", () => {
+        state.filterDomain = domainSelectEl.value;
+        renderActive();
+      });
+      searchInputEl.addEventListener("input", () => {
+        state.search = searchInputEl.value || "";
+        renderActive();
+      });
+
+      domainCompletedSelectEl.addEventListener("change", () => {
+        state.filterDomainCompleted = domainCompletedSelectEl.value;
+        renderCompleted();
+      });
+      searchCompletedInputEl.addEventListener("input", () => {
+        state.searchCompleted = searchCompletedInputEl.value || "";
+        renderCompleted();
+      });
+
+      document
+        .getElementById("clearProgressBtn")
+        .addEventListener("click", () => {
+          clearDoneMapForCurrentDataset();
+          renderAll();
+        });
+
+      fileInputEl.addEventListener("change", async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        const text = (await file.text()).trim();
+        const parsed = parseDataset(text);
+        if (parsed.length === 0) {
+          alert("No valid lines found. Use: Domain | Goal | Reward");
+          e.target.value = "";
+          return;
+        }
+
+        setPersonalText(text);
+        useDataset("personal", text);
+        setTab("active");
+
+        e.target.value = "";
+      });
+
+      document.getElementById("applyEditsBtn").addEventListener("click", () => {
+        const text = (datasetEditorEl.value || "").trim();
+        const parsed = parseDataset(text);
+
+        if (parsed.length === 0) {
+          alert(
+            "Edits did not produce any valid lines. Use: Domain | Goal | Reward"
+          );
+          return;
+        }
+
+        // Apply edits to the current set
+        if (state.activeSet === "personal") {
+          setPersonalText(text);
+          useDataset("personal", text);
+        } else {
+          // editing dummy is local-only for this browser session; keep it as active dummy text
+          useDataset("dummy", text);
+        }
+
+        setTab("active");
+      });
+
+      document.getElementById("exportTxtBtn").addEventListener("click", () => {
+        const text = (datasetEditorEl.value || "").trim();
+        if (!text) {
+          alert("Nothing to export.");
+          return;
+        }
+        const blob = new Blob([text + "\n"], {
+          type: "text/plain;charset=utf-8",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download =
+          state.activeSet === "personal"
+            ? "personal_goals.txt"
+            : "dummy_goals.txt";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+
+      /*****************
+       * Boot
+       *****************/
+      (function init() {
+        bootLoadDataset();
+        setActiveSetPill();
+        buildDomainOptions();
+        buildDomainCompletedOptions();
+        renderAll();
+        setTab("active");
+      })();
+    </script>
+  </body>
+</html>
